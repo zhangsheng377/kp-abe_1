@@ -1,0 +1,15 @@
+*.m4
+*.log
+*.status
+*.scan
+*depcomp
+*Makefile.in
+*missing
+*output.*
+*requests
+*test_gmp
+*.o
+*.Po
+*traces.*
+compile
+.vscode
