@@ -1,7 +1,7 @@
 /*
  * pp.h
  *
- *  Created on: 2018å¹?3æœ?14æ—?
+ *  Created on: 2018éª?3éˆ?14éƒ?
  *      Author: root
  */
 
@@ -22,8 +22,8 @@ public:
     clt_pp_t *pp;
     clt_state_t *sk;
     mpz_t MSK;               // Master Key
-    mpz_t *attribute;        //´æh1 µ½hn,ÊÇÊôĞÔĞèÒªµÄ¶«Î÷
-    clt_elem_t *encodingOfa; // gkµÄ°¢·¢
+    mpz_t *attribute;        //å­˜h1 åˆ°hn,æ˜¯å±æ€§éœ€è¦çš„ä¸œè¥¿
+    clt_elem_t *encodingOfa; // gkçš„é˜¿å‘
     PublicKey() {}
     PublicKey(int attrNumber)
     {
@@ -91,7 +91,7 @@ class ssk
 public:
     int nodeNumber;
     mpz_t kh;
-    mpz_t *skUnion; //·ÅÃ¿¸öÊäÈë£¬½ÚµãµÄkw
+    mpz_t *skUnion; //æ”¾æ¯ä¸ªè¾“å…¥ï¼ŒèŠ‚ç‚¹çš„kw
     int *skStartIndex;
     ssk() {}
     ssk(int nodeNumber)

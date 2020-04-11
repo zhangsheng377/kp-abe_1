@@ -17,16 +17,16 @@
 #include <sys/stat.h>
 #include <time.h>
 #include <unistd.h>
-#include <clt13.h> //µ÷ÓÃpbc¿â
+#include <clt13.h> //è°ƒç”¨pbcåº“
 #include <gmp.h>
 
 PublicKey *setUp(int serParam, int attrNumber, int denth)
 {
-    // Group //denth:Èº×éµÄ¸öÊı.ÊıµÄ²ãÊı¼ÓÒ» initalize
-    // serparam£º°²È«²ÎÊı:ÈË£¬³õÊ¼»¯/¿âĞèÒªµÄ¶«Î÷,attrNumber:ÏµÍ³ÊôĞÔ¸öÊı.denth:µçÂ·×î´óÉî¶È
+    // Group //denth:ç¾¤ç»„çš„ä¸ªæ•°.æ•°çš„å±‚æ•°åŠ ä¸€ initalize
+    // serparamï¼šå®‰å…¨å‚æ•°:äººï¼Œåˆå§‹åŒ–/åº“éœ€è¦çš„ä¸œè¥¿,attrNumber:ç³»ç»Ÿå±æ€§ä¸ªæ•°.denth:ç”µè·¯æœ€å¤§æ·±åº¦
     ulong default_flags = CLT_FLAG_NONE | CLT_FLAG_VERBOSE;
-    int begin, end;  //¶¨Òå¿ªÊ¼ºÍ½áÊø±êÖ¾Î»
-    begin = clock(); //¿ªÊ¼¼ÆÊ±
+    int begin, end;  //å®šä¹‰å¼€å§‹å’Œç»“æŸæ ‡å¿—ä½
+    begin = clock(); //å¼€å§‹è®¡æ—¶
     int kappa = denth;
     int lambda = 10;
     int pows[kappa], top_level[kappa]; // use for Mulitilinear Map
@@ -52,16 +52,16 @@ PublicKey *setUp(int serParam, int attrNumber, int denth)
 
     srand((unsigned)time(NULL));
 
-    // initalie element  ¼´ ³õÊ¼»¯gk°¢·¢£¨pk->encodingOfa£©
-    // ³õÊ¼»¯h1µ½hn£¨pk->attribute[i]£©
+    // initalie element  å³ åˆå§‹åŒ–gké˜¿å‘ï¼ˆpk->encodingOfaï¼‰
+    // åˆå§‹åŒ–h1åˆ°hnï¼ˆpk->attribute[i]ï¼‰
     for (int i = 0; i < attrNumber; i++)
     {
         mpz_init(publicKey->attribute[i]);
     }
-    // random master key a; //Ëæ»úÉú³É°¢·¢£¬Ö÷ÃÜÔ¿ÊÇ°¢·¢/gk-1°¢·¢·½£¬ÕâÀïÊÇ°¢·¢
+    // random master key a; //éšæœºç”Ÿæˆé˜¿å‘ï¼Œä¸»å¯†é’¥æ˜¯é˜¿å‘/gk-1é˜¿å‘æ–¹ï¼Œè¿™é‡Œæ˜¯é˜¿å‘
     mpz_init_set_ui(publicKey->MSK, (rand() % 100) + 1);
-    clt_encode(publicKey->encodingOfa, sk, 1, &publicKey->MSK, top_level); //Éú³ÉgkµÄ°¡·¨·½
-    gmp_printf("The public gk^a=");                                        //Êä³öÒ»£ºgk^a
+    clt_encode(publicKey->encodingOfa, sk, 1, &publicKey->MSK, top_level); //ç”Ÿæˆgkçš„å•Šæ³•æ–¹
+    gmp_printf("The public gk^a=");                                        //è¾“å‡ºä¸€ï¼šgk^a
     clt_elem_print(publicKey->encodingOfa);
     gmp_printf("\n");
 
@@ -76,7 +76,7 @@ PublicKey *setUp(int serParam, int attrNumber, int denth)
         mpz_set_ui(temp, (rand() % 100) + 1);
         clt_encode((clt_elem_t *)publicKey->attribute[i], sk, 1, &temp, pows);
         gmp_printf("The public h%d=%Zd\n", i,
-                   publicKey->attribute[i]); // Êä³ö¶ş£ºËæ»ú²úÉúh1......hn
+                   publicKey->attribute[i]); // è¾“å‡ºäºŒï¼šéšæœºäº§ç”Ÿh1......hn
     }
     aes_randclear(rng);
     mpz_clear(temp);
@@ -85,8 +85,8 @@ PublicKey *setUp(int serParam, int attrNumber, int denth)
     publicKey->pp = pp;
     publicKey->sk = sk;
     publicKey->top_level = kappa;
-    end = clock();                             //½áÊø¼ÆÊ±
-    printf("setup time is %d\n", end - begin); //²îÎªÊ±¼ä£¬µ¥Î»ºÁÃë
+    end = clock();                             //ç»“æŸè®¡æ—¶
+    printf("setup time is %d\n", end - begin); //å·®ä¸ºæ—¶é—´ï¼Œå•ä½æ¯«ç§’
     printf("*********setUp() "
            "Complete!!!***************************************************\n");
 
@@ -110,11 +110,11 @@ CT *encrypt(PublicKey *publicKey, int *att, int message)
 
     mpz_t result, temp1;
     mpz_inits(result, temp1, ct->gs, ct->CM, NULL);
-    int s = (rand() % 100) + 1; //²úÉúËæ»úÊıs ÊôÓÚZp
+    int s = (rand() % 100) + 1; //äº§ç”Ÿéšæœºæ•°s å±äºZp
     mpz_set_ui(temp1, s);
     clt_encode((clt_elem_t *)ct->gs, publicKey->sk, 1, &temp1, pows_one); // g^s
     clt_elem_mul_ui((clt_elem_t *)result, publicKey->pp, publicKey->encodingOfa,
-                    s); //(gk°¢·¢)s´Î·½
+                    s); //(gké˜¿å‘)sæ¬¡æ–¹
     mpz_t codeM, mmm;
     mpz_inits(codeM, NULL);
     mpz_init_set_ui(mmm, message);
@@ -124,20 +124,20 @@ CT *encrypt(PublicKey *publicKey, int *att, int message)
         top_level[i] = publicKey->top_level;
     }
     clt_encode((clt_elem_t *)codeM, publicKey->sk, 1, &mmm,
-               top_level); //ÊäÈëµÄÃ÷ÎÄM
+               top_level); //è¾“å…¥çš„æ˜æ–‡M
     clt_elem_add((clt_elem_t *)ct->CM, publicKey->pp, (clt_elem_t *)result,
-                 (clt_elem_t *)codeM); // message*(gk°¢·¢)s´Î·½
-                                       //ÕâÁ½¸öÑ­»·¾ÍÊÇµÃµ½V iÊôÓÚs£¬Ci=hiµÄs·½
+                 (clt_elem_t *)codeM); // message*(gké˜¿å‘)sæ¬¡æ–¹
+                                       //è¿™ä¸¤ä¸ªå¾ªç¯å°±æ˜¯å¾—åˆ°V iå±äºsï¼ŒCi=hiçš„sæ–¹
     for (int i = 0; i < publicKey->attrNumber; i++)
     {
         if (att[i] == 1)
         {
             clt_elem_mul_ui((clt_elem_t *)ct->ci[i], publicKey->pp,
                             (clt_elem_t *)publicKey->attribute[i],
-                            s); // h1µ½hnµÄs·½£¬·Åµ½ci[]ÀïÃæ
+                            s); // h1åˆ°hnçš„sæ–¹ï¼Œæ”¾åˆ°ci[]é‡Œé¢
         }
     }
-    //ÏÂÃæÈı¸öÊä³ö¾ÍÊÇ¼ÓÃÜµÄÃÜÎÄÈ«²¿ÄÚÈİ£¬cmÃÜÎÄ£¬gµÄs·½£¬ÒÔ¼°c[i]=hiµÄs·½
+    //ä¸‹é¢ä¸‰ä¸ªè¾“å‡ºå°±æ˜¯åŠ å¯†çš„å¯†æ–‡å…¨éƒ¨å†…å®¹ï¼Œcmå¯†æ–‡ï¼Œgçš„sæ–¹ï¼Œä»¥åŠc[i]=hiçš„sæ–¹
     gmp_printf("Cm=%Zd\n", ct->CM);
     gmp_printf("gs=%Zd\n", ct->gs);
     for (int i = 0; i < publicKey->attrNumber; i++)
@@ -172,15 +172,15 @@ ssk *keyGen(Tree *tree, PublicKey *publicKey)
     for (int i = 0; i < gssk->nodeNumber * 4; i++)
     {
         mpz_init(
-            gssk->skUnion[i]); //³õÊ¼»¯´æ´¢Êä³ö½Úµã£¬ÓëÃÅ£¬»òÃÅµÄ ¹Ø¼ü×é¼şkwµÄÊı×é
+            gssk->skUnion[i]); //åˆå§‹åŒ–å­˜å‚¨è¾“å‡ºèŠ‚ç‚¹ï¼Œä¸é—¨ï¼Œæˆ–é—¨çš„ å…³é”®ç»„ä»¶kwçš„æ•°ç»„
     }
     long rs[nodenumber];
     for (int i = 0; i < nodenumber; i++)
     {
         long s = (rand() % 10) + 1;
-        rs[i] = s; // random value of every node Ëæ»ú²úÉúr1....rn+q
+        rs[i] = s; // random value of every node éšæœºäº§ç”Ÿr1....rn+q
     }
-    //Êä³öËæ»ú²úÉúµÄr1....rn+q
+    //è¾“å‡ºéšæœºäº§ç”Ÿçš„r1....rn+q
     /*for (int i = 0; i <nodenumber; i++) {
           gmp_printf("rs[%d]=%Zd\n", i, rs[i]);
   }*/
@@ -196,11 +196,11 @@ ssk *keyGen(Tree *tree, PublicKey *publicKey)
                pows);                                                         // temp1=gk-1^rnq
     clt_encode((clt_elem_t *)temp2, publicKey->sk, 1, &publicKey->MSK, pows); // temp2=gk-1^a
     clt_elem_sub((clt_elem_t *)gssk->kh, publicKey->pp, (clt_elem_t *)temp2,
-                 (clt_elem_t *)temp1); // Kh=temp1/temp2    µÃµ½Í·²¿ÃÜÔ¿Kh
+                 (clt_elem_t *)temp1); // Kh=temp1/temp2    å¾—åˆ°å¤´éƒ¨å¯†é’¥Kh
     mpz_clears(rnq, temp1, temp2, NULL);
 
     Node *quence[nodenumber]; // The container visit the tree
-    quence[0] = tree->root;
+    quence[0] = tree->getRoot();
     int index = 0; // the index of the visited node
     int had = 1;
     Node *pz = NULL;
@@ -234,14 +234,14 @@ ssk *keyGen(Tree *tree, PublicKey *publicKey)
         mpz_t rw;
         mpz_init_set_ui(rw, kaz);
         if (pz->Nodetype == 1)
-        { // and ÓëÃÅÈı¸ö¹Ø¼ü×é¼ş
+        { // and ä¸é—¨ä¸‰ä¸ªå…³é”®ç»„ä»¶
             gssk->skStartIndex[place] =
                 storeplace; // describe the sercert key element start place
-                            // ´æµ±Ç°½ÚµãÎ»ÖÃ£¬Ã¿´æÒ»¸ö¹Ø¼ü×é¼şµ½skUnition,storeplace++
+                            // å­˜å½“å‰èŠ‚ç‚¹ä½ç½®ï¼Œæ¯å­˜ä¸€ä¸ªå…³é”®ç»„ä»¶åˆ°skUnition,storeplace++
             clt_encode((clt_elem_t *)gssk->skUnion[storeplace++], publicKey->sk, 1,
-                       &aw, powsOne); // g^aw  ×é¼şÒ»
+                       &aw, powsOne); // g^aw  ç»„ä»¶ä¸€
             clt_encode((clt_elem_t *)gssk->skUnion[storeplace++], publicKey->sk, 1,
-                       &bw, powsOne); // g^bw  ×é¼ş¶ş
+                       &bw, powsOne); // g^bw  ç»„ä»¶äºŒ
 
             mpz_t codeaw, codebw, coderw;
             mpz_inits(codeaw, codebw, coderw, NULL);
@@ -259,16 +259,16 @@ ssk *keyGen(Tree *tree, PublicKey *publicKey)
                          (clt_elem_t *)codeaw); // gj^(bw*r2)
             clt_elem_sub((clt_elem_t *)gssk->skUnion[storeplace++], publicKey->pp,
                          (clt_elem_t *)coderw,
-                         (clt_elem_t *)codebw); // gj^(rw-aw*r1-bw*r2) ×é¼şÈı
+                         (clt_elem_t *)codebw); // gj^(rw-aw*r1-bw*r2) ç»„ä»¶ä¸‰
             mpz_clears(codeaw, codebw, coderw, NULL);
         }
         if (pz->Nodetype == 2)
-        { // or  »òÃÅËÄ¸ö¹Ø¼ü×é¼ş
+        { // or  æˆ–é—¨å››ä¸ªå…³é”®ç»„ä»¶
             gssk->skStartIndex[place] = storeplace;
             clt_encode((clt_elem_t *)gssk->skUnion[storeplace++], publicKey->sk, 1,
-                       &aw, powsOne); // g^aw  ×é¼şÒ»
+                       &aw, powsOne); // g^aw  ç»„ä»¶ä¸€
             clt_encode((clt_elem_t *)gssk->skUnion[storeplace++], publicKey->sk, 1,
-                       &bw, powsOne); // g^bw  ×é¼ş¶ş
+                       &bw, powsOne); // g^bw  ç»„ä»¶äºŒ
             mpz_t codeaw, codebw, coderw;
             mpz_inits(codeaw, codebw, coderw, NULL);
             clt_encode((clt_elem_t *)codeaw, publicKey->sk, 1, &aw,
@@ -283,14 +283,14 @@ ssk *keyGen(Tree *tree, PublicKey *publicKey)
                             rs[pz->rightson->index - 1]); // gj^(bw*r2)
             clt_elem_sub((clt_elem_t *)gssk->skUnion[storeplace++], publicKey->pp,
                          (clt_elem_t *)coderw,
-                         (clt_elem_t *)codeaw); // gj^(rw-aw*r1) ×é¼şÈı
+                         (clt_elem_t *)codeaw); // gj^(rw-aw*r1) ç»„ä»¶ä¸‰
             clt_elem_sub((clt_elem_t *)gssk->skUnion[storeplace++], publicKey->pp,
                          (clt_elem_t *)coderw,
-                         (clt_elem_t *)codebw); // gj^(rw-bw*r2) ×é¼şËÄ
+                         (clt_elem_t *)codebw); // gj^(rw-bw*r2) ç»„ä»¶å››
             mpz_clears(codeaw, codebw, coderw, NULL);
         }
         if (pz->Nodetype >= 3)
-        { // attr  ÊäÈëµ¼Ïß2¸ö¹Ø¼ü×é¼ş
+        { // attr  è¾“å…¥å¯¼çº¿2ä¸ªå…³é”®ç»„ä»¶
             gssk->skStartIndex[place] = storeplace;
             int attributeindex = pz->Nodetype - 3;
             int randzw = (rand() % 100) + 1;
@@ -305,9 +305,9 @@ ssk *keyGen(Tree *tree, PublicKey *publicKey)
                        powsOne); // temp2=g^rw
             clt_elem_add((clt_elem_t *)gssk->skUnion[storeplace++], publicKey->pp,
                          (clt_elem_t *)temp2,
-                         (clt_elem_t *)temp); // g^(rw)*hw^zw  ×é¼şÒ»
+                         (clt_elem_t *)temp); // g^(rw)*hw^zw  ç»„ä»¶ä¸€
             clt_encode((clt_elem_t *)gssk->skUnion[storeplace++], publicKey->sk, 1,
-                       &temp3, powsOne); // g^(-zw)    ×é¼ş¶ş
+                       &temp3, powsOne); // g^(-zw)    ç»„ä»¶äºŒ
         }
         if (pz->leftsons != NULL)
         {
@@ -318,7 +318,7 @@ ssk *keyGen(Tree *tree, PublicKey *publicKey)
             quence[had++] = pz->rightson;
         }
     } while (index != had);
-    //Êä³öÃ¿¸ö½Úµã´æ´¢µÄ¹Ø¼üÃÜÔ¿
+    //è¾“å‡ºæ¯ä¸ªèŠ‚ç‚¹å­˜å‚¨çš„å…³é”®å¯†é’¥
     for (int i = 0; i < storeplace; i++)
     {
         gmp_printf("skUnion[%d]=%Zd\n", i, gssk->skUnion[i]);
@@ -333,9 +333,9 @@ int evaluate(mpz_t ele, Node *p, ssk *ssk, CT *ct,
              PublicKey *publicKey)
 {
     if (p->Nodetype >= 3)
-    { //ÊäÈëµ¼Ïß
+    { //è¾“å…¥å¯¼çº¿
         int attrIndex = p->Nodetype - 3;
-        int isZero = mpz_cmp_d(ct->ci[attrIndex], 0); //£¿£¿£¿£¿£¿£¿
+        int isZero = mpz_cmp_d(ct->ci[attrIndex], 0); //ï¼Ÿï¼Ÿï¼Ÿï¼Ÿï¼Ÿï¼Ÿ
         if (isZero != 0)
         {
             int index = p->index - 1;
@@ -383,7 +383,7 @@ int evaluate(mpz_t ele, Node *p, ssk *ssk, CT *ct,
             clt_elem_add(
                 (clt_elem_t *)ele, publicKey->pp, (clt_elem_t *)temp,
                 (clt_elem_t *)
-                    kw3); // ele=e(k(w,1),Eaw)*e(k(w,2),Ebw)*e(k(w,3),g^s)  ¼´µÃµ½Ew
+                    kw3); // ele=e(k(w,1),Eaw)*e(k(w,2),Ebw)*e(k(w,3),g^s)  å³å¾—åˆ°Ew
             return 1;
         }
         else
@@ -433,7 +433,7 @@ bool transform(Tree *tree, ssk *ssk, CT *ct, PublicKey *publicKey)
 
     mpz_inits(E, rnqs, NULL);
 
-    int aa = evaluate(rnqs, tree->root, ssk, ct, publicKey); // rnqs=gk^rnqs
+    int aa = evaluate(rnqs, tree->getRoot(), ssk, ct, publicKey); // rnqs=gk^rnqs
     if (aa == 0)
     {
         return false;
@@ -496,9 +496,11 @@ bool decrypt(int &decryptMessage, ssk *ssk, CT *ct, PublicKey *publicKey)
 
 Tree *buildTree()
 {
-    Node *a0 = new Node();
-    Node *a1 = new Node();
-    Node *root = new Node();
+    Tree *tree = new Tree(3);
+    Node *root = &(tree->nodes[0]);
+    Node *a0 = &(tree->nodes[1]);
+    Node *a1 = &(tree->nodes[2]);
+
     a0->setType(3); // attribute
     a0->index = 2;
     a1->setType(4); // attribute
@@ -512,10 +514,6 @@ Tree *buildTree()
     root->setrightson(a1);
     a0->setParent(root);
     a1->setParent(root);
-
-    Tree *tree = new Tree();
-    tree->root = root;
-    tree->nodeNumb = 3;
 
     return tree;
 }
