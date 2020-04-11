@@ -10,10 +10,11 @@
 #ifndef TREE_H_
 #define TREE_H_
 
-class Tree
+struct Tree
 {
 public:
     int nodeNumb;
+    //Node nodes[100];
     std::vector<Node> nodes;
     Tree(int nodeNumb)
     {

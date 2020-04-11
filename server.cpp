@@ -17,26 +17,32 @@ int main()
 
     bool *needGen = GetNeedGenPtr();
 
-    while (false)
+    while (true)
     {
-        while (!(*needGen))
+        /*while (!(*needGen))
         {
             sleep(1);
-        }
+        }*/
 
         Tree *tree = buildTree();
         PublicKey *publicKey = setUp(serparam, attrNumber, depth);
         ssk *sk = keyGen(tree, publicKey); //真正的私钥
 
-        SendTree(tree);
+        //printf("start SendTree\n");
+        //SendTree(tree);
+        printf("start SendPublicKey\n");
         SendPublicKey(publicKey);
+        printf("start SendSsk\n");
         SendSsk(sk);
+        printf("send over\n");
 
         *needGen = false;
+
+        break;
     }
 
     FreeNeedGen();
-    FreeTree();
+    //FreeTree();
     FreePublicKey();
     FreeSsk();
 

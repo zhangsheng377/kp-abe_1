@@ -4,15 +4,13 @@
  *  Created on: 2018骞?3鏈?14鏃?
  *      Author: root
  */
-
+#include <vector>
 #include "Node.h"
 #include "clt13.h"
 #include "gmp.h"
 
 #ifndef PP_H_
 #define PP_H_
-
-using namespace std;
 
 class PublicKey
 {
@@ -21,19 +19,23 @@ public:
     int attrNumber;
     clt_pp_t *pp;
     clt_state_t *sk;
-    mpz_t MSK;               // Master Key
-    mpz_t *attribute;        //存h1 到hn,是属性需要的东西
-    clt_elem_t *encodingOfa; // gk的阿发
+    mpz_t MSK;                     // Master Key
+    struct MyMpz_t{
+        mpz_t t;
+    };
+    //存h1 到hn,是属性需要的东西
+    //std::vector<MyMpz_t> attributes; 
+    MyMpz_t attributes[100];
+    clt_elem_t *encodingOfa;       // gk的阿发
     PublicKey() {}
     PublicKey(int attrNumber)
     {
         this->attrNumber = attrNumber;
-        attribute = (mpz_t *)malloc(sizeof(mpz_t) * attrNumber);
+        //attributes.resize(attrNumber);
         encodingOfa = clt_elem_new();
 
         printf("PublicKey init****************************************\n");
     }
-
     ~PublicKey()
     {
         if (pp != NULL)
@@ -48,10 +50,10 @@ public:
         {
             clt_elem_free(encodingOfa);
         }
-        if (attribute != NULL)
-        {
-            free(attribute);
-        }
+    }
+    mpz_t *GetAttribute(int index)
+    {
+        return &(attributes[index].t);
     }
 };
 class CT

@@ -19,6 +19,7 @@
 #include <unistd.h>
 #include <clt13.h> //调用pbc库
 #include <gmp.h>
+//#include "util_shm.h"
 
 PublicKey *setUp(int serParam, int attrNumber, int denth)
 {
@@ -56,7 +57,7 @@ PublicKey *setUp(int serParam, int attrNumber, int denth)
     // 初始化h1到hn（pk->attribute[i]）
     for (int i = 0; i < attrNumber; i++)
     {
-        mpz_init(publicKey->attribute[i]);
+        mpz_init(*(publicKey->GetAttribute(i)));
     }
     // random master key a; //随机生成阿发，主密钥是阿发/gk-1阿发方，这里是阿发
     mpz_init_set_ui(publicKey->MSK, (rand() % 100) + 1);
@@ -74,9 +75,9 @@ PublicKey *setUp(int serParam, int attrNumber, int denth)
     for (int i = 0; i < attrNumber; i++)
     {
         mpz_set_ui(temp, (rand() % 100) + 1);
-        clt_encode((clt_elem_t *)publicKey->attribute[i], sk, 1, &temp, pows);
+        clt_encode((clt_elem_t *)publicKey->GetAttribute(i), sk, 1, &temp, pows);
         gmp_printf("The public h%d=%Zd\n", i,
-                   publicKey->attribute[i]); // 输出二：随机产生h1......hn
+                   publicKey->GetAttribute(i)); // 输出二：随机产生h1......hn
     }
     aes_randclear(rng);
     mpz_clear(temp);
@@ -133,7 +134,7 @@ CT *encrypt(PublicKey *publicKey, int *att, int message)
         if (att[i] == 1)
         {
             clt_elem_mul_ui((clt_elem_t *)ct->ci[i], publicKey->pp,
-                            (clt_elem_t *)publicKey->attribute[i],
+                            (clt_elem_t *)publicKey->GetAttribute(i),
                             s); // h1到hn的s方，放到ci[]里面
         }
     }
@@ -299,7 +300,7 @@ ssk *keyGen(Tree *tree, PublicKey *publicKey)
             mpz_init_set_ui(temp3, randzw);
 
             clt_elem_mul_ui((clt_elem_t *)temp, publicKey->pp,
-                            (clt_elem_t *)publicKey->attribute[attributeindex],
+                            (clt_elem_t *)publicKey->GetAttribute(attributeindex),
                             randzw); // temp=hw^zw
             clt_encode((clt_elem_t *)temp2, publicKey->sk, 1, &rw,
                        powsOne); // temp2=g^rw
@@ -496,13 +497,22 @@ bool decrypt(int &decryptMessage, ssk *ssk, CT *ct, PublicKey *publicKey)
 
 Tree *buildTree()
 {
+    //printf("buildTree enter\n");
     Tree *tree = new Tree(3);
+    //Tree *tree=GetTreePtr(3);
+    //printf("buildTree 1\n");
     Node *root = &(tree->nodes[0]);
+    //printf("buildTree 2\n");
     Node *a0 = &(tree->nodes[1]);
+    //printf("buildTree 3\n");
     Node *a1 = &(tree->nodes[2]);
+    //printf("buildTree 4\n");
 
-    a0->setType(3); // attribute
+    //a0->setType(3); // attribute
+    a0->Nodetype=3;
+    //printf("buildTree 5\n");
     a0->index = 2;
+    //printf("buildTree 6\n");
     a1->setType(4); // attribute
     a1->index = 3;
     root->setType(1); // and
@@ -514,6 +524,8 @@ Tree *buildTree()
     root->setrightson(a1);
     a0->setParent(root);
     a1->setParent(root);
+
+    printf("buildTree end\n");
 
     return tree;
 }

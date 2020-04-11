@@ -17,6 +17,8 @@ int main()
 
     PublicKey *publicKey = setUp(serparam, attrNumber, depth);
 
+    ssk *sk = keyGen(tree, publicKey); //真正的私钥
+
     int message;
     if (!inputMessage(message))
     {
@@ -24,8 +26,6 @@ int main()
     }
 
     CT *ct = encrypt(publicKey, encattr, message);
-
-    ssk *sk = keyGen(tree, publicKey); //真正的私钥
 
     if (!transform(tree, sk, ct, publicKey))
     {

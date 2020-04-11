@@ -2,6 +2,7 @@
 
 1. 我的wsl环境带不带gmp，需要手动安装：
 ```
+   systemctl stop packagekit
    sudo apt install libgmp3-dev
    g++ test_gmp.cpp -o test_gmp -lgmp
    
@@ -19,7 +20,12 @@
 ```
    sudo apt install cmake
    sudo apt install libflint-dev
+   cp zsd_clt_build.sh clt13/build.sh
    dos2unix build.sh
+   ./build.sh
+   等libaesrand下载完成后,ctrl+c结束脚本运行
+   cp ../aesrand.h libaesrand/aesrand/aesrand.h.in
+   cp ../clt13.h libaesrand/src/clt13.h
    ./build.sh
    make
    sudo make install
@@ -29,7 +35,7 @@
 
 3. 接下来都准备好后，就是要调通程序，能跑起来就行
 ```
-   g++ Encryption.cpp util_shm.cpp server.cpp -o server -lgmp -lclt13 -laesrand -lexplain
+   g++ Encryption.cpp util_clt.cpp util_shm.cpp server.cpp -o server -lgmp -lclt13 -laesrand -lexplain
    LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib/
    export LD_LIBRARY_PATH
    ./Encryption
