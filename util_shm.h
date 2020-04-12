@@ -15,7 +15,7 @@ Tree *GetTreePtr(int nodeNumb);
 void SendTree(const Tree *tree);
 void FreeTree();
 
-static const key_t KEY_PUBLICKEY = 12361;
+static const key_t KEY_PUBLICKEY = 12362;
 PublicKey *GetPublicKey();
 void SendPublicKey(const PublicKey *publicKey);
 void FreePublicKey();

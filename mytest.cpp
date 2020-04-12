@@ -25,6 +25,8 @@ int main()
         return 0;
     }
 
+    tree = buildTree();
+
     CT *ct = encrypt(publicKey, encattr, message);
 
     if (!transform(tree, sk, ct, publicKey))

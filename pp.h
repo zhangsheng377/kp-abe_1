@@ -19,7 +19,8 @@ public:
     int attrNumber;
     clt_pp_t *pp;
     clt_state_t *sk;
-    mpz_t MSK;                     // Master Key
+    //mpz_t MSK;                     // Master Key
+    clt_elem_t *MSK;                 // Master Key
     struct MyMpz_t{
         mpz_t t;
     };
@@ -33,6 +34,7 @@ public:
         this->attrNumber = attrNumber;
         //attributes.resize(attrNumber);
         encodingOfa = clt_elem_new();
+        MSK=clt_elem_new();
 
         printf("PublicKey init****************************************\n");
     }
@@ -49,6 +51,10 @@ public:
         if (encodingOfa != NULL)
         {
             clt_elem_free(encodingOfa);
+        }
+        if (MSK != NULL)
+        {
+            clt_elem_free(MSK);
         }
     }
     mpz_t *GetAttribute(int index)

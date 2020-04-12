@@ -60,8 +60,8 @@ PublicKey *setUp(int serParam, int attrNumber, int denth)
         mpz_init(*(publicKey->GetAttribute(i)));
     }
     // random master key a; //随机生成阿发，主密钥是阿发/gk-1阿发方，这里是阿发
-    mpz_init_set_ui(publicKey->MSK, (rand() % 100) + 1);
-    clt_encode(publicKey->encodingOfa, sk, 1, &publicKey->MSK, top_level); //生成gk的啊法方
+    mpz_init_set_ui(*(mpz_t*)publicKey->MSK, (rand() % 100) + 1);
+    clt_encode(publicKey->encodingOfa, sk, 1, (mpz_t*)publicKey->MSK, top_level); //生成gk的啊法方
     gmp_printf("The public gk^a=");                                        //输出一：gk^a
     clt_elem_print(publicKey->encodingOfa);
     gmp_printf("\n");
@@ -195,7 +195,7 @@ ssk *keyGen(Tree *tree, PublicKey *publicKey)
     mpz_set_ui(rnq, rs[0]);
     clt_encode((clt_elem_t *)temp1, publicKey->sk, 1, &rnq,
                pows);                                                         // temp1=gk-1^rnq
-    clt_encode((clt_elem_t *)temp2, publicKey->sk, 1, &publicKey->MSK, pows); // temp2=gk-1^a
+    clt_encode((clt_elem_t *)temp2, publicKey->sk, 1, (mpz_t*)publicKey->MSK, pows); // temp2=gk-1^a
     clt_elem_sub((clt_elem_t *)gssk->kh, publicKey->pp, (clt_elem_t *)temp2,
                  (clt_elem_t *)temp1); // Kh=temp1/temp2    得到头部密钥Kh
     mpz_clears(rnq, temp1, temp2, NULL);

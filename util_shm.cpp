@@ -1,5 +1,6 @@
 #include <sys/shm.h>
 #include <libexplain/shmctl.h>
+#include <string>
 #include "Node.h"
 #include "Tree.h"
 #include "pp.h"
@@ -85,11 +86,11 @@ void FreeTree()
     FreeShmMem(KEY_TREE, (void *)shm_tree);
 }
 
-FILE *GetPublicKeyFile()
+FILE *GetPublicKeyFile(std::string command)
 {
     FILE *file;
 
-    file = fopen("publicKey.dat", "wb+");
+    file = fopen("publicKey.dat", command.c_str());
     if (file == NULL)
     {
         perror("Error opening file");
@@ -107,24 +108,35 @@ PublicKey *GetPublicKeyPtr()
 PublicKey *GetPublicKey()
 {
     PublicKey *shm_publicKey = GetPublicKeyPtr();
-    FILE *file = GetPublicKeyFile();
+    FILE *file = GetPublicKeyFile("rb+");
+
+    printf("GetPublicKey shm_publicKey->top_level:%d\n", shm_publicKey->top_level);
+    printf("GetPublicKey shm_publicKey->attrNumber:%d\n", shm_publicKey->attrNumber);
 
     shm_publicKey->pp = util_clt_pp_restore(file);
+    printf("GetPublicKey util_clt_pp_restore over\n");
+
     shm_publicKey->sk = util_clt_state_restore(file);
-    if (mpz_inp_raw(shm_publicKey->MSK, file) == 0)
-    {
-        fprintf(stderr, "mpz_inp_raw failed!\n");
-        exit(1);
-    }
+    printf("GetPublicKey util_clt_state_restore over\n");
+
+    shm_publicKey->MSK=clt_elem_new();
+    util_clt_elem_restore(file, shm_publicKey->MSK);
+    printf("GetPublicKey shm_publicKey->MSK over\n");
+
     for (int i = 0; i < shm_publicKey->attrNumber; ++i)
     {
+        mpz_init(shm_publicKey->attributes[i].t);
         if (mpz_inp_raw(shm_publicKey->attributes[i].t, file) == 0)
         {
             fprintf(stderr, "attributes mpz_inp_raw failed!\n");
             exit(1);
         }
     }
+    printf("GetPublicKey shm_publicKey->attributes over\n");
+
+    shm_publicKey->encodingOfa=clt_elem_new();
     util_clt_elem_restore(file, shm_publicKey->encodingOfa);
+    printf("GetPublicKey shm_publicKey->encodingOfa over\n");
 
     rewind(file);
     fclose(file);
@@ -137,7 +149,7 @@ void SendPublicKey(const PublicKey *publicKey)
     //printf("SendPublicKey enter\n");
 
     PublicKey *shm_publicKey = GetPublicKeyPtr();
-    FILE *file = GetPublicKeyFile();
+    FILE *file = GetPublicKeyFile("wb+");
 
     //*shm_publicKey = *publicKey;
     shm_publicKey->top_level = publicKey->top_level;
@@ -145,11 +157,12 @@ void SendPublicKey(const PublicKey *publicKey)
 
     util_clt_pp_store(file, publicKey->pp);
     util_clt_state_store(file, publicKey->sk);
-    if (mpz_out_raw(file, publicKey->MSK) == 0)
+    util_clt_elem_store(file, publicKey->MSK);
+    /*if (mpz_out_raw(file, publicKey->MSK) == 0)
     {
         fprintf(stderr, "mpz_out_raw failed!\n");
         exit(1);
-    }
+    }*/
     //printf("SendPublicKey attributes begin\n");
     for (int i = 0; i < publicKey->attrNumber; ++i)
     {

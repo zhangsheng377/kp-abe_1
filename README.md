@@ -25,7 +25,7 @@
    ./build.sh
    等libaesrand下载完成后,ctrl+c结束脚本运行
    cp ../aesrand.h libaesrand/aesrand/aesrand.h.in
-   cp ../clt13.h libaesrand/src/clt13.h
+   cp ../clt13.h src/clt13.h
    ./build.sh
    make
    sudo make install

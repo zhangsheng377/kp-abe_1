@@ -19,10 +19,10 @@ int main()
 
     while (true)
     {
-        /*while (!(*needGen))
+        while (!(*needGen))
         {
             sleep(1);
-        }*/
+        }
 
         Tree *tree = buildTree();
         PublicKey *publicKey = setUp(serparam, attrNumber, depth);
@@ -38,7 +38,7 @@ int main()
 
         *needGen = false;
 
-        break;
+        //break;
     }
 
     FreeNeedGen();
