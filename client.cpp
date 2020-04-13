@@ -35,6 +35,40 @@ int main()
         gmp_printf("The public h%d=%Zd\n", i,
                    publicKey->GetAttribute(i));
     }
+    printf("*********GetPublicKey() "
+           "Complete********************************************\n");
+
+    ssk *sk = GetSsk();
+    //输出每个节点存储的关键密钥
+    for (int i = 0; i < 7; i++)
+    {
+        gmp_printf("skUnion[%d]=%Zd\n", i, sk->skUnion[i]);
+    }
+    printf("*********GetSsk() "
+           "Complete********************************************\n");
+
+    int message;
+    if (!inputMessage(message))
+    {
+        return 0;
+    }
+
+    CT *ct = encrypt(publicKey, encattr, message);
+
+    if (!transform(tree, sk, ct, publicKey))
+    {
+        printf("\nencattr is wrong. Can not decrypt the Message!!\n");
+    }
+
+    int decryptMessage = 0;
+    if (decrypt(decryptMessage, sk, ct, publicKey))
+    {
+        printf("\nThe Message is %d\n", decryptMessage);
+    }
+    else
+    {
+        printf("\nCan not decrypt the Message!!\n");
+    }
 
     return 0;
 }

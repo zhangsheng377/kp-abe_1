@@ -119,7 +119,7 @@ PublicKey *GetPublicKey()
     shm_publicKey->sk = util_clt_state_restore(file);
     printf("GetPublicKey util_clt_state_restore over\n");
 
-    shm_publicKey->MSK=clt_elem_new();
+    shm_publicKey->MSK = clt_elem_new();
     util_clt_elem_restore(file, shm_publicKey->MSK);
     printf("GetPublicKey shm_publicKey->MSK over\n");
 
@@ -134,7 +134,7 @@ PublicKey *GetPublicKey()
     }
     printf("GetPublicKey shm_publicKey->attributes over\n");
 
-    shm_publicKey->encodingOfa=clt_elem_new();
+    shm_publicKey->encodingOfa = clt_elem_new();
     util_clt_elem_restore(file, shm_publicKey->encodingOfa);
     printf("GetPublicKey shm_publicKey->encodingOfa over\n");
 
@@ -187,6 +187,19 @@ void FreePublicKey()
     FreeShmMem(KEY_PUBLICKEY, (void *)shm_publicKey);
 }
 
+FILE *GetSskFile(std::string command)
+{
+    FILE *file;
+
+    file = fopen("ssk.dat", command.c_str());
+    if (file == NULL)
+    {
+        perror("Error opening file");
+    }
+
+    return file;
+}
+
 ssk *GetSskPtr()
 {
     static ssk *shm_sk = GetShmMem<ssk>(KEY_SSK);
@@ -196,13 +209,66 @@ ssk *GetSskPtr()
 ssk *GetSsk()
 {
     ssk *shm_sk = GetSskPtr();
+    FILE *file = GetSskFile("rb+");
+
+    printf("GetSsk shm_sk->nodeNumber:%d\n", shm_sk->nodeNumber);
+
+    mpz_init(shm_sk->kh);
+    if (mpz_inp_raw(shm_sk->kh, file) == 0)
+    {
+        fprintf(stderr, "kh mpz_inp_raw failed!\n");
+        exit(1);
+    }
+    printf("GetSsk shm_sk->kh over\n");
+
+    for (int i = 0; i < shm_sk->nodeNumber * 4; ++i)
+    {
+        mpz_init(shm_sk->skUnion[i]);
+        if (mpz_inp_raw(shm_sk->skUnion[i], file) == 0)
+        {
+            fprintf(stderr, "skUnion[%d] mpz_inp_raw failed!\n", i);
+            exit(1);
+        }
+    }
+    printf("GetSsk shm_sk->skUnion over\n");
+
+    printf("GetSsk shm_sk->skStartIndex over\n");
+
+    rewind(file);
+    fclose(file);
+
     return shm_sk;
 }
 
 void SendSsk(const ssk *sk)
 {
     ssk *shm_sk = GetSskPtr();
-    *shm_sk = *sk;
+    FILE *file = GetSskFile("wb+");
+
+    shm_sk->nodeNumber = sk->nodeNumber;
+
+    if (mpz_out_raw(file, sk->kh) == 0)
+    {
+        fprintf(stderr, "kh mpz_out_raw failed!\n");
+        exit(1);
+    }
+
+    for (int i = 0; i < sk->nodeNumber * 4; ++i)
+    {
+        if (mpz_out_raw(file, sk->skUnion[i]) == 0)
+        {
+            fprintf(stderr, "skUnion[%d] mpz_out_raw failed!\n", i);
+            exit(1);
+        }
+    }
+
+    for (int i = 0; i < sk->nodeNumber; ++i)
+    {
+        shm_sk->skStartIndex[i] = sk->skStartIndex[i];
+    }
+
+    rewind(file);
+    fclose(file);
 }
 
 void FreeSsk()

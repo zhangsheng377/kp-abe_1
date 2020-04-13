@@ -20,7 +20,7 @@ PublicKey *GetPublicKey();
 void SendPublicKey(const PublicKey *publicKey);
 void FreePublicKey();
 
-static const key_t KEY_SSK = 1237;
+static const key_t KEY_SSK = 12371;
 ssk *GetSsk();
 void SendSsk(const ssk *sk);
 void FreeSsk();

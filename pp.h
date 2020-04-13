@@ -20,21 +20,22 @@ public:
     clt_pp_t *pp;
     clt_state_t *sk;
     //mpz_t MSK;                     // Master Key
-    clt_elem_t *MSK;                 // Master Key
-    struct MyMpz_t{
+    clt_elem_t *MSK; // Master Key
+    struct MyMpz_t
+    {
         mpz_t t;
     };
     //存h1 到hn,是属性需要的东西
-    //std::vector<MyMpz_t> attributes; 
+    //std::vector<MyMpz_t> attributes;
     MyMpz_t attributes[100];
-    clt_elem_t *encodingOfa;       // gk的阿发
+    clt_elem_t *encodingOfa; // gk的阿发
     PublicKey() {}
     PublicKey(int attrNumber)
     {
         this->attrNumber = attrNumber;
         //attributes.resize(attrNumber);
         encodingOfa = clt_elem_new();
-        MSK=clt_elem_new();
+        MSK = clt_elem_new();
 
         printf("PublicKey init****************************************\n");
     }
@@ -99,28 +100,18 @@ class ssk
 public:
     int nodeNumber;
     mpz_t kh;
-    mpz_t *skUnion; //放每个输入，节点的kw
-    int *skStartIndex;
+    mpz_t skUnion[100]; //放每个输入，节点的kw
+    int skStartIndex[100];
     ssk() {}
     ssk(int nodeNumber)
     {
         this->nodeNumber = nodeNumber;
-        skUnion = (mpz_t *)malloc(sizeof(mpz_t) * nodeNumber * 4);
-        skStartIndex = (int *)malloc(sizeof(int) * nodeNumber);
     }
     ~ssk()
     {
         if (kh != NULL)
         {
             mpz_clears(kh, NULL);
-        }
-        if (skUnion != NULL)
-        {
-            free(skUnion);
-        }
-        if (skStartIndex != NULL)
-        {
-            free(skStartIndex);
         }
     }
 };

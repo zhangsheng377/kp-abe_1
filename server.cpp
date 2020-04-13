@@ -28,8 +28,6 @@ int main()
         PublicKey *publicKey = setUp(serparam, attrNumber, depth);
         ssk *sk = keyGen(tree, publicKey); //真正的私钥
 
-        //printf("start SendTree\n");
-        //SendTree(tree);
         printf("start SendPublicKey\n");
         SendPublicKey(publicKey);
         printf("start SendSsk\n");
@@ -37,12 +35,9 @@ int main()
         printf("send over\n");
 
         *needGen = false;
-
-        //break;
     }
 
     FreeNeedGen();
-    //FreeTree();
     FreePublicKey();
     FreeSsk();
 
