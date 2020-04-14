@@ -6,15 +6,6 @@
 
 int main()
 {
-    int shmid;                //共享内存标识符
-    const int attrNumber = 5; // 系统属性个数
-    const int serparam = 10;  // 安全参数
-    const int depth = 3;      // 电路最大深度
-
-    // can decrypt   系统属性个数==用户的属性个数
-    // int encattr[5] = { 1, 0, 0, 0, 0};	//can not decrypt
-    int encattr[attrNumber] = {1, 1, 0, 0, 0};
-
     bool *needGen = GetNeedGenPtr();
 
     while (true)
@@ -24,8 +15,9 @@ int main()
             sleep(1);
         }
 
+        SystemParam *systemParam = GetSystemParamPtr();
         Tree *tree = buildTree();
-        PublicKey *publicKey = setUp(serparam, attrNumber, depth);
+        PublicKey *publicKey = setUp(systemParam);
         ssk *sk = keyGen(tree, publicKey); //真正的私钥
 
         printf("start SendPublicKey\n");

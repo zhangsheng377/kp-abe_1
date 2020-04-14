@@ -2,9 +2,9 @@
 #include "Tree.h"
 #include "pp.h"
 
-PublicKey *setUp(int serParam, int attrNumber, int denth);
+PublicKey *setUp(SystemParam *systemParam);
 
-CT *encrypt(PublicKey *publicKey, int *att, int message);
+CT *encrypt(PublicKey *publicKey, SystemParam *systemParam, int message);
 
 int depth(Node *curr);
 

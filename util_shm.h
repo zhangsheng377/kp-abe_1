@@ -10,6 +10,11 @@ static const key_t KEY_NEEDGEN = 1234;
 bool *GetNeedGenPtr();
 void FreeNeedGen();
 
+static const key_t KEY_SYSTEMPARAM = 1238;
+SystemParam *GetSystemParamPtr();
+void SendSystemParam(const SystemParam *systemParam);
+void FreeSystemParam();
+
 static const key_t KEY_TREE = 12351;
 Tree *GetTreePtr(int nodeNumb);
 void SendTree(const Tree *tree);

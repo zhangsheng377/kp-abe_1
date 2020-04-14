@@ -64,6 +64,29 @@ void FreeNeedGen()
     FreeShmMem(KEY_NEEDGEN, (void *)needGen);
 }
 
+SystemParam *GetSystemParamPtr()
+{
+    static SystemParam *systemParam = GetShmMem<SystemParam>(KEY_SYSTEMPARAM);
+    return systemParam;
+}
+
+void SendSystemParam(const SystemParam *systemParam)
+{
+    SystemParam *shm_systemParam = GetSystemParamPtr();
+    shm_systemParam->serParam = systemParam->serParam;
+    shm_systemParam->attrNumber = systemParam->attrNumber;
+    for (int i = 0; i < systemParam->attrNumber; ++i)
+    {
+        shm_systemParam->attr[i] = systemParam->attr[i];
+    }
+}
+
+void FreeSystemParam()
+{
+    SystemParam *systemParam = GetSystemParamPtr();
+    FreeShmMem(KEY_SYSTEMPARAM, (void *)systemParam);
+}
+
 Tree *GetTreePtr(int nodeNumb)
 {
     //static Tree *shm_tree = (Tree *)GetShmMem_(KEY_TREE, sizeof(Tree) + sizeof(Node) * nodeNumb);

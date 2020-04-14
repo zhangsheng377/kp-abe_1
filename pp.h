@@ -12,6 +12,14 @@
 #ifndef PP_H_
 #define PP_H_
 
+class SystemParam
+{
+public:
+    int serParam;     //安全参数,
+    int attrNumber;   //属性个数
+    int attr[100]; //属性
+};
+
 class PublicKey
 {
 public:

@@ -21,20 +21,18 @@
 #include <gmp.h>
 //#include "util_shm.h"
 
-PublicKey *setUp(int serParam, int attrNumber, int denth)
+PublicKey *setUp(SystemParam *systemParam)
 {
-    // Group //denth:群组的个数.数的层数加一 initalize
-    // serparam：安全参数:人，初始化/库需要的东西,attrNumber:系统属性个数.denth:电路最大深度
     ulong default_flags = CLT_FLAG_NONE | CLT_FLAG_VERBOSE;
     int begin, end;  //定义开始和结束标志位
     begin = clock(); //开始计时
-    int kappa = denth;
+    int kappa = 3;
     int lambda = 10;
     int pows[kappa], top_level[kappa]; // use for Mulitilinear Map
     clt_state_t *sk;                   // Mulitilinear Map sercert key
     clt_pp_t *pp;                      // Mulitilinear Map Public key
     aes_randstate_t rng;
-    PublicKey *publicKey = new PublicKey(attrNumber);
+    PublicKey *publicKey = new PublicKey(systemParam->attrNumber);
 
     aes_randinit(rng);
     for (int k = 0; k < kappa; k++)
@@ -55,14 +53,14 @@ PublicKey *setUp(int serParam, int attrNumber, int denth)
 
     // initalie element  即 初始化gk阿发（pk->encodingOfa）
     // 初始化h1到hn（pk->attribute[i]）
-    for (int i = 0; i < attrNumber; i++)
+    for (int i = 0; i < systemParam->attrNumber; i++)
     {
         mpz_init(*(publicKey->GetAttribute(i)));
     }
     // random master key a; //随机生成阿发，主密钥是阿发/gk-1阿发方，这里是阿发
-    mpz_init_set_ui(*(mpz_t*)publicKey->MSK, (rand() % 100) + 1);
-    clt_encode(publicKey->encodingOfa, sk, 1, (mpz_t*)publicKey->MSK, top_level); //生成gk的啊法方
-    gmp_printf("The public gk^a=");                                        //输出一：gk^a
+    mpz_init_set_ui(*(mpz_t *)publicKey->MSK, (rand() % 100) + 1);
+    clt_encode(publicKey->encodingOfa, sk, 1, (mpz_t *)publicKey->MSK, top_level); //生成gk的啊法方
+    gmp_printf("The public gk^a=");                                                //输出一：gk^a
     clt_elem_print(publicKey->encodingOfa);
     gmp_printf("\n");
 
@@ -72,7 +70,7 @@ PublicKey *setUp(int serParam, int attrNumber, int denth)
     }
     mpz_t temp;
     mpz_init(temp);
-    for (int i = 0; i < attrNumber; i++)
+    for (int i = 0; i < systemParam->attrNumber; i++)
     {
         mpz_set_ui(temp, (rand() % 100) + 1);
         clt_encode((clt_elem_t *)publicKey->GetAttribute(i), sk, 1, &temp, pows);
@@ -82,7 +80,7 @@ PublicKey *setUp(int serParam, int attrNumber, int denth)
     aes_randclear(rng);
     mpz_clear(temp);
 
-    publicKey->attrNumber = attrNumber;
+    publicKey->attrNumber = systemParam->attrNumber;
     publicKey->pp = pp;
     publicKey->sk = sk;
     publicKey->top_level = kappa;
@@ -94,7 +92,7 @@ PublicKey *setUp(int serParam, int attrNumber, int denth)
     return publicKey;
 }
 
-CT *encrypt(PublicKey *publicKey, int *att, int message)
+CT *encrypt(PublicKey *publicKey, SystemParam *systemParam, int message)
 {
     CT *ct = new CT(publicKey->attrNumber);
 
@@ -131,7 +129,7 @@ CT *encrypt(PublicKey *publicKey, int *att, int message)
                                        //这两个循环就是得到V i属于s，Ci=hi的s方
     for (int i = 0; i < publicKey->attrNumber; i++)
     {
-        if (att[i] == 1)
+        if (systemParam->attr[i] == 1)
         {
             clt_elem_mul_ui((clt_elem_t *)ct->ci[i], publicKey->pp,
                             (clt_elem_t *)publicKey->GetAttribute(i),
@@ -194,8 +192,8 @@ ssk *keyGen(Tree *tree, PublicKey *publicKey)
     mpz_inits(rnq, gssk->kh, temp1, temp2, NULL);
     mpz_set_ui(rnq, rs[0]);
     clt_encode((clt_elem_t *)temp1, publicKey->sk, 1, &rnq,
-               pows);                                                         // temp1=gk-1^rnq
-    clt_encode((clt_elem_t *)temp2, publicKey->sk, 1, (mpz_t*)publicKey->MSK, pows); // temp2=gk-1^a
+               pows);                                                                 // temp1=gk-1^rnq
+    clt_encode((clt_elem_t *)temp2, publicKey->sk, 1, (mpz_t *)publicKey->MSK, pows); // temp2=gk-1^a
     clt_elem_sub((clt_elem_t *)gssk->kh, publicKey->pp, (clt_elem_t *)temp2,
                  (clt_elem_t *)temp1); // Kh=temp1/temp2    得到头部密钥Kh
     mpz_clears(rnq, temp1, temp2, NULL);
@@ -334,7 +332,7 @@ int evaluate(mpz_t ele, Node *p, ssk *ssk, CT *ct,
              PublicKey *publicKey)
 {
     if (p->Nodetype >= 3)
-    { //输入导线
+    {
         int attrIndex = p->Nodetype - 3;
         int isZero = mpz_cmp_d(ct->ci[attrIndex], 0); //？？？？？？
         if (isZero != 0)
@@ -509,7 +507,7 @@ Tree *buildTree()
     //printf("buildTree 4\n");
 
     //a0->setType(3); // attribute
-    a0->Nodetype=3;
+    a0->Nodetype = 3;
     //printf("buildTree 5\n");
     a0->index = 2;
     //printf("buildTree 6\n");
