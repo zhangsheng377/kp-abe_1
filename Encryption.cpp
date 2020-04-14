@@ -7,7 +7,7 @@
 //============================================================================
 
 #include "Node.h"
-#include "Tree.h"
+#include "Gk.h"
 #include "pp.h"
 #include <aesrand.h>
 #include <errno.h>
@@ -23,6 +23,8 @@
 
 PublicKey *setUp(SystemParam *systemParam)
 {
+    printf("setUp start:\n");
+
     ulong default_flags = CLT_FLAG_NONE | CLT_FLAG_VERBOSE;
     int begin, end;  //定义开始和结束标志位
     begin = clock(); //开始计时
@@ -86,14 +88,15 @@ PublicKey *setUp(SystemParam *systemParam)
     publicKey->top_level = kappa;
     end = clock();                             //结束计时
     printf("setup time is %d\n", end - begin); //差为时间，单位毫秒
-    printf("*********setUp() "
-           "Complete!!!***************************************************\n");
+    printf("setUp over\n\n");
 
     return publicKey;
 }
 
 CT *encrypt(PublicKey *publicKey, SystemParam *systemParam, int message)
 {
+    printf("Encrypt start:\n");
+
     CT *ct = new CT(publicKey->attrNumber);
 
     // initalize elements
@@ -146,13 +149,12 @@ CT *encrypt(PublicKey *publicKey, SystemParam *systemParam, int message)
 
     ct->attrNumber = publicKey->attrNumber;
 
-    printf("*********Encrypt() "
-           "Complete********************************************\n");
+    printf("Encrypt over\n\n");
 
     return ct;
 }
 
-int depth(Node *curr)
+int getLevel(Node *curr)
 {
     int dep = 1;
     while (curr->leftsons != NULL)
@@ -163,10 +165,12 @@ int depth(Node *curr)
     return dep;
 }
 
-ssk *keyGen(Tree *tree, PublicKey *publicKey)
+ssk *keyGen(Gk *gk, PublicKey *publicKey)
 {
-    ssk *gssk = new ssk(tree->nodeNumb);
-    int nodenumber = tree->nodeNumb;
+    printf("KeyGen start:\n");
+
+    ssk *gssk = new ssk(gk->nodeNumb);
+    int nodenumber = gk->nodeNumb;
 
     for (int i = 0; i < gssk->nodeNumber * 4; i++)
     {
@@ -198,8 +202,8 @@ ssk *keyGen(Tree *tree, PublicKey *publicKey)
                  (clt_elem_t *)temp1); // Kh=temp1/temp2    得到头部密钥Kh
     mpz_clears(rnq, temp1, temp2, NULL);
 
-    Node *quence[nodenumber]; // The container visit the tree
-    quence[0] = tree->getRoot();
+    Node *quence[nodenumber]; // The container visit the gk
+    quence[0] = gk->get();
     int index = 0; // the index of the visited node
     int had = 1;
     Node *pz = NULL;
@@ -223,17 +227,17 @@ ssk *keyGen(Tree *tree, PublicKey *publicKey)
 
         mpz_set_ui(aw, awint);
         mpz_set_ui(bw, bwint);
-        int dep = depth(pz);
+        int dep = getLevel(pz);
         for (int i = 0; i < publicKey->top_level; i++)
         {
             powsdepth[i] = dep;
         }
-        int place = pz->index - 1; // root->index=1;
+        int place = pz->index - 1; // gkk->index=1;
         long kaz = rs[place];
         mpz_t rw;
         mpz_init_set_ui(rw, kaz);
         if (pz->Nodetype == 1)
-        { // and 与门三个关键组件
+        {
             gssk->skStartIndex[place] =
                 storeplace; // describe the sercert key element start place
                             // 存当前节点位置，每存一个关键组件到skUnition,storeplace++
@@ -289,7 +293,7 @@ ssk *keyGen(Tree *tree, PublicKey *publicKey)
             mpz_clears(codeaw, codebw, coderw, NULL);
         }
         if (pz->Nodetype >= 3)
-        { // attr  输入导线2个关键组件
+        { // attr
             gssk->skStartIndex[place] = storeplace;
             int attributeindex = pz->Nodetype - 3;
             int randzw = (rand() % 100) + 1;
@@ -322,8 +326,7 @@ ssk *keyGen(Tree *tree, PublicKey *publicKey)
     {
         gmp_printf("skUnion[%d]=%Zd\n", i, gssk->skUnion[i]);
     }
-    printf("*********KeyGen() "
-           "Complete********************************************\n");
+    printf("KeyGen over\n\n");
 
     return gssk;
 }
@@ -357,7 +360,7 @@ int evaluate(mpz_t ele, Node *p, ssk *ssk, CT *ct,
         }
     }
     if (p->Nodetype == 1)
-    { // and
+    {
 
         int index = p->index - 1;
         int skStartIndex = ssk->skStartIndex[index];
@@ -391,7 +394,7 @@ int evaluate(mpz_t ele, Node *p, ssk *ssk, CT *ct,
         }
     }
     if (p->Nodetype == 2)
-    { // or
+    {
         int index = p->index - 1;
         int skStartIndex = ssk->skStartIndex[index];
         mpz_t kw1, kw2, aw, bw;
@@ -426,13 +429,19 @@ int evaluate(mpz_t ele, Node *p, ssk *ssk, CT *ct,
     }
 }
 
-bool transform(Tree *tree, ssk *ssk, CT *ct, PublicKey *publicKey)
+bool decrypt(int &decryptMessage, Gk *gk, ssk *ssk, CT *ct, PublicKey *publicKey)
 {
+    printf("Decrypt start:\n");
+
+    int top_level[publicKey->top_level]; // top_level=3
+    mpz_t ten, codeTen;
+    int testNum = 0;
+    //const int tryNum = 500;
     mpz_t E, rnqs;
 
     mpz_inits(E, rnqs, NULL);
 
-    int aa = evaluate(rnqs, tree->getRoot(), ssk, ct, publicKey); // rnqs=gk^rnqs
+    int aa = evaluate(rnqs, gk->get(), ssk, ct, publicKey); // rnqs=gk^rnqs
     if (aa == 0)
     {
         return false;
@@ -441,23 +450,6 @@ bool transform(Tree *tree, ssk *ssk, CT *ct, PublicKey *publicKey)
     clt_elem_mul((clt_elem_t *)E, publicKey->pp, (clt_elem_t *)ssk->kh, (clt_elem_t *)ct->gs); // e'=e(KH,g^s)
     clt_elem_add((clt_elem_t *)E, publicKey->pp, (clt_elem_t *)E, (clt_elem_t *)rnqs);         // E=e(KH,g^s)*(gk^rnqs)=gk^(as-rnqs)*gk^rnqs=gk^as
     clt_elem_sub(ct->result, publicKey->pp, (clt_elem_t *)ct->CM, (clt_elem_t *)E);            // result=CM/E=CM/gk^as
-
-    printf("CT*=");
-    clt_elem_print(ct->result);
-    printf("\n");
-
-    printf("*********Transform() "
-           "Complete********************************************\n");
-
-    return true;
-}
-
-bool decrypt(int &decryptMessage, ssk *ssk, CT *ct, PublicKey *publicKey)
-{
-    int top_level[publicKey->top_level]; // top_level=3
-    mpz_t ten, codeTen;
-    int testNum = 0;
-    //const int tryNum = 500;
 
     mpz_inits(codeTen, ten, NULL);
     for (int i = 0; i < publicKey->top_level; i++)
@@ -478,8 +470,7 @@ bool decrypt(int &decryptMessage, ssk *ssk, CT *ct, PublicKey *publicKey)
 
             gmp_printf("codeTen=%Zd\n", codeTen);
 
-            printf("*********Decrypt() "
-                   "Complete********************************************\n");
+            printf("Decrypt over\n\n");
 
             return true;
         }
@@ -493,39 +484,37 @@ bool decrypt(int &decryptMessage, ssk *ssk, CT *ct, PublicKey *publicKey)
     return false;
 }
 
-Tree *buildTree()
+Gk *GetGk()
 {
-    //printf("buildTree enter\n");
-    Tree *tree = new Tree(3);
-    //Tree *tree=GetTreePtr(3);
-    //printf("buildTree 1\n");
-    Node *root = &(tree->nodes[0]);
-    //printf("buildTree 2\n");
-    Node *a0 = &(tree->nodes[1]);
-    //printf("buildTree 3\n");
-    Node *a1 = &(tree->nodes[2]);
-    //printf("buildTree 4\n");
+    //printf("GetGk enter\n");
+    Gk *gk = new Gk(3);
+    //Gk *gk=GetGkPtr(3);
+    //printf("GetGk 1\n");
+    Node *gkk = &(gk->nodes[0]);
+    //printf("GetGk 2\n");
+    Node *a0 = &(gk->nodes[1]);
+    //printf("GetGk 3\n");
+    Node *a1 = &(gk->nodes[2]);
+    //printf("GetGk 4\n");
 
     //a0->setType(3); // attribute
     a0->Nodetype = 3;
-    //printf("buildTree 5\n");
+    //printf("GetGk 5\n");
     a0->index = 2;
-    //printf("buildTree 6\n");
+    //printf("GetGk 6\n");
     a1->setType(4); // attribute
     a1->index = 3;
-    root->setType(1); // and
+    gkk->setType(1); // and
 
-    //	root->setType(2);//or
+    //	gkk->setType(2);//or
 
-    root->index = 1;
-    root->setleftsons(a0);
-    root->setrightson(a1);
-    a0->setParent(root);
-    a1->setParent(root);
+    gkk->index = 1;
+    gkk->setleftsons(a0);
+    gkk->setrightson(a1);
+    a0->setParent(gkk);
+    a1->setParent(gkk);
 
-    printf("buildTree end\n");
-
-    return tree;
+    return gk;
 }
 
 bool inputMessage(int &message)

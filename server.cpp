@@ -16,15 +16,15 @@ int main()
         }
 
         SystemParam *systemParam = GetSystemParamPtr();
-        Tree *tree = buildTree();
         PublicKey *publicKey = setUp(systemParam);
-        ssk *sk = keyGen(tree, publicKey); //真正的私钥
+        Gk *gk = GetGk();
+        ssk *sk = keyGen(gk, publicKey); //真正的私钥
 
         printf("start SendPublicKey\n");
         SendPublicKey(publicKey);
         printf("start SendSsk\n");
         SendSsk(sk);
-        printf("send over\n");
+        printf("send over\n\n\n");
 
         *needGen = false;
     }

@@ -2,7 +2,7 @@
 #include <libexplain/shmctl.h>
 #include <string>
 #include "Node.h"
-#include "Tree.h"
+#include "Gk.h"
 #include "pp.h"
 #include "util_shm.h"
 #include "util_clt.h"
@@ -87,26 +87,26 @@ void FreeSystemParam()
     FreeShmMem(KEY_SYSTEMPARAM, (void *)systemParam);
 }
 
-Tree *GetTreePtr(int nodeNumb)
+Gk *GetGkPtr(int nodeNumb)
 {
-    //static Tree *shm_tree = (Tree *)GetShmMem_(KEY_TREE, sizeof(Tree) + sizeof(Node) * nodeNumb);
-    static Tree *shm_tree = GetShmMem<Tree>(KEY_TREE);
-    return shm_tree;
+    //static Gk *shm_gk = (Gk *)GetShmMem_(KEY_GK, sizeof(Gk) + sizeof(Node) * nodeNumb);
+    static Gk *shm_gk = GetShmMem<Gk>(KEY_GK);
+    return shm_gk;
 }
 
-void SendTree(const Tree *tree)
+void SendGk(const Gk *gk)
 {
-    Tree *shm_tree = GetTreePtr(tree->nodeNumb);
-    //*shm_tree = *tree;
-    shm_tree->nodeNumb = tree->nodeNumb;
-    //shm_tree->nodes = tree->nodes;
-    //printf("tree nodes size:%d\n", tree->nodes.size());
+    Gk *shm_gk = GetGkPtr(gk->nodeNumb);
+    //*shm_gk = *gk;
+    shm_gk->nodeNumb = gk->nodeNumb;
+    //shm_gk->nodes = gk->nodes;
+    //printf("gk nodes size:%d\n", gk->nodes.size());
 }
 
-void FreeTree()
+void FreeGk()
 {
-    Tree *shm_tree = GetTreePtr(0);
-    FreeShmMem(KEY_TREE, (void *)shm_tree);
+    Gk *shm_gk = GetGkPtr(0);
+    FreeShmMem(KEY_GK, (void *)shm_gk);
 }
 
 FILE *GetPublicKeyFile(std::string command)

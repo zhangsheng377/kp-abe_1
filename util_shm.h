@@ -1,6 +1,6 @@
 #include <sys/shm.h>
 #include "Node.h"
-#include "Tree.h"
+#include "Gk.h"
 #include "pp.h"
 
 #ifndef UTIL_SHM_H_
@@ -15,10 +15,10 @@ SystemParam *GetSystemParamPtr();
 void SendSystemParam(const SystemParam *systemParam);
 void FreeSystemParam();
 
-static const key_t KEY_TREE = 12351;
-Tree *GetTreePtr(int nodeNumb);
-void SendTree(const Tree *tree);
-void FreeTree();
+static const key_t KEY_GK = 12351;
+Gk *GetGkPtr(int nodeNumb);
+void SendGk(const Gk *gk);
+void FreeGk();
 
 static const key_t KEY_PUBLICKEY = 12362;
 PublicKey *GetPublicKey();

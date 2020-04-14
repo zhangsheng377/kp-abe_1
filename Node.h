@@ -17,7 +17,7 @@ public:
     Node *parent;
     Node *leftsons;
     Node *rightson;
-    int Nodetype; // 1:and 2:or 3:attribute a0 4:attribute a1.........
+    int Nodetype;
 public:
     void setParent(Node *parented) { parent = parented; }
     Node *getParent() { return this->parent; }

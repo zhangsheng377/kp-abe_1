@@ -12,8 +12,6 @@ int main()
         .attr = {1, 1, 0, 0, 0},
     };
 
-    Tree *tree = buildTree();
-
     printf("Send systemParam start:\n");
     SendSystemParam(&systemParam);
     printf("Send systemParam over\n\n");
@@ -29,6 +27,7 @@ int main()
 
     printf("GetPublicKey start:\n");
     PublicKey *publicKey = GetPublicKey();
+    Gk *gk = GetGk();
     gmp_printf("The publicKey encodingOfa=");
     clt_elem_print(publicKey->encodingOfa);
     gmp_printf("\n");
@@ -55,13 +54,8 @@ int main()
 
     CT *ct = encrypt(publicKey, &systemParam, message);
 
-    if (!transform(tree, sk, ct, publicKey))
-    {
-        printf("\nattr is wrong. Can not decrypt the Message!!\n");
-    }
-
     int decryptMessage = 0;
-    if (decrypt(decryptMessage, sk, ct, publicKey))
+    if (decrypt(decryptMessage, gk, sk, ct, publicKey))
     {
         printf("\nThe Message is %d\n", decryptMessage);
     }
