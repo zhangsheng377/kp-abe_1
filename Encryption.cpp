@@ -21,9 +21,9 @@
 #include <gmp.h>
 //#include "util_shm.h"
 
-PublicKey *setUp(SystemParam *systemParam)
+PublicKey *GlobalSetup(SystemParam *systemParam)
 {
-    printf("setUp start:\n");
+    printf("GlobalSetup start:\n");
 
     ulong default_flags = CLT_FLAG_NONE | CLT_FLAG_VERBOSE;
     int begin, end;  //定义开始和结束标志位
@@ -88,14 +88,14 @@ PublicKey *setUp(SystemParam *systemParam)
     publicKey->top_level = kappa;
     end = clock();                             //结束计时
     printf("setup time is %d\n", end - begin); //差为时间，单位毫秒
-    printf("setUp over\n\n");
+    printf("GlobalSetup over\n\n");
 
     return publicKey;
 }
 
-CT *encrypt(PublicKey *publicKey, SystemParam *systemParam, int message)
+CT *ClientEncryption(PublicKey *publicKey, SystemParam *systemParam, int message)
 {
-    printf("Encrypt start:\n");
+    printf("ClientEncryption start:\n");
 
     CT *ct = new CT(publicKey->attrNumber);
 
@@ -149,7 +149,7 @@ CT *encrypt(PublicKey *publicKey, SystemParam *systemParam, int message)
 
     ct->attrNumber = publicKey->attrNumber;
 
-    printf("Encrypt over\n\n");
+    printf("ClientEncryption over\n\n");
 
     return ct;
 }
@@ -165,9 +165,9 @@ int getLevel(Node *curr)
     return dep;
 }
 
-ssk *keyGen(Gk *gk, PublicKey *publicKey)
+ssk *GlobalKeyGen(Gk *gk, PublicKey *publicKey)
 {
-    printf("KeyGen start:\n");
+    printf("GlobalKeyGen start:\n");
 
     ssk *gssk = new ssk(gk->nodeNumb);
     int nodenumber = gk->nodeNumb;
@@ -326,7 +326,7 @@ ssk *keyGen(Gk *gk, PublicKey *publicKey)
     {
         gmp_printf("skUnion[%d]=%Zd\n", i, gssk->skUnion[i]);
     }
-    printf("KeyGen over\n\n");
+    printf("GlobalKeyGen over\n\n");
 
     return gssk;
 }
@@ -429,9 +429,9 @@ int evaluate(mpz_t ele, Node *p, ssk *ssk, CT *ct,
     }
 }
 
-bool decrypt(int &decryptMessage, Gk *gk, ssk *ssk, CT *ct, PublicKey *publicKey)
+bool ClientDecryption(int &decryptMessage, Gk *gk, ssk *ssk, CT *ct, PublicKey *publicKey)
 {
-    printf("Decrypt start:\n");
+    printf("ClientDecryption start:\n");
 
     int top_level[publicKey->top_level]; // top_level=3
     mpz_t ten, codeTen;
@@ -470,7 +470,7 @@ bool decrypt(int &decryptMessage, Gk *gk, ssk *ssk, CT *ct, PublicKey *publicKey
 
             gmp_printf("codeTen=%Zd\n", codeTen);
 
-            printf("Decrypt over\n\n");
+            printf("ClientDecryption over\n\n");
 
             return true;
         }
@@ -515,15 +515,4 @@ Gk *GetGk()
     a1->setParent(gkk);
 
     return gk;
-}
-
-bool inputMessage(int &message)
-{
-    printf("please input message:");
-    if (scanf("%d", &message) <= 0)
-    {
-        printf("You did not enter any number.\n");
-        return false;
-    }
-    return true;
 }

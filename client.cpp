@@ -47,15 +47,17 @@ int main()
     printf("GetSsk over\n\n");
 
     int message;
-    if (!inputMessage(message))
+    printf("please input message:");
+    if (scanf("%d", &message) <= 0)
     {
+        printf("You did not enter any number.\n");
         return 0;
     }
 
-    CT *ct = encrypt(publicKey, &systemParam, message);
+    CT *ct = ClientEncryption(publicKey, &systemParam, message);
 
     int decryptMessage = 0;
-    if (decrypt(decryptMessage, gk, sk, ct, publicKey))
+    if (ClientDecryption(decryptMessage, gk, sk, ct, publicKey))
     {
         printf("\nThe Message is %d\n", decryptMessage);
     }

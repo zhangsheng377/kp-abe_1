@@ -16,9 +16,9 @@ int main()
         }
 
         SystemParam *systemParam = GetSystemParamPtr();
-        PublicKey *publicKey = setUp(systemParam);
+        PublicKey *publicKey = GlobalSetup(systemParam);
         Gk *gk = GetGk();
-        ssk *sk = keyGen(gk, publicKey); //真正的私钥
+        ssk *sk = GlobalKeyGen(gk, publicKey); //真正的私钥
 
         printf("start SendPublicKey\n");
         SendPublicKey(publicKey);

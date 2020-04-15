@@ -13,22 +13,24 @@ int main()
 
     Gk *gk = GetGk();
 
-    PublicKey *publicKey = setUp(&systemParam);
+    PublicKey *publicKey = GlobalSetup(&systemParam);
 
-    ssk *sk = keyGen(gk, publicKey); //真正的私钥
+    ssk *sk = GlobalKeyGen(gk, publicKey); //真正的私钥
 
     int message;
-    if (!inputMessage(message))
+    printf("please input message:");
+    if (scanf("%d", &message) <= 0)
     {
+        printf("You did not enter any number.\n");
         return 0;
     }
 
     gk = GetGk();
-    
-    CT *ct = encrypt(publicKey, &systemParam, message);
+
+    CT *ct = ClientEncryption(publicKey, &systemParam, message);
 
     int decryptMessage = 0;
-    if (decrypt(decryptMessage, gk, sk, ct, publicKey))
+    if (ClientDecryption(decryptMessage, gk, sk, ct, publicKey))
     {
         printf("\nThe Message is %d\n", decryptMessage);
     }
